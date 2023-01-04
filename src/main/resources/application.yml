@@ -1,6 +1,27 @@
 server:
   port: 8080
 spring:
+  sql:
+    init:
+      mode: always
   devtools:
       livereload:
           enabled: true
+  datasource:
+    url: jdbc:log4jdbc:h2:tcp://localhost/~/category;MODE=MySQL
+    username: root
+    password: root
+    driver-class-name:  net.sf.log4jdbc.sql.jdbcapi.DriverSpy
+    hikari:
+      connectionTimeout: 5000
+      validationTimeout: 1000
+      maximumPoolSize: 10
+  h2:
+    console:
+      path: /h2-console
+      enabled: true
+mybatis:
+    mapper-locations: classpath:/META-INF/mybatis/*.xml
+    type-aliases-package: com.project.basic.model
+logging:
+    config: classpath:logback.xml
