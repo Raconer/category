@@ -3,15 +3,15 @@ server:
 spring:
   sql:
     init:
-      mode: always
+      mode: never
   devtools:
       livereload:
           enabled: true
   datasource:
-    url: jdbc:log4jdbc:h2:tcp://localhost/~/category;MODE=MySQL
+    url: jdbc:h2:tcp://localhost/~/category;MODE=MySQL
     username: root
     password: root
-    driver-class-name:  net.sf.log4jdbc.sql.jdbcapi.DriverSpy
+    driver-class-name: org.h2.Driver
     hikari:
       connectionTimeout: 5000
       validationTimeout: 1000
@@ -20,8 +20,14 @@ spring:
     console:
       path: /h2-console
       enabled: true
-mybatis:
-    mapper-locations: classpath:/META-INF/mybatis/*.xml
-    type-aliases-package: com.project.basic.model
-logging:
-    config: classpath:logback.xml
+  jpa:
+    database: H2
+    database-platform: org.hibernate.dialect.H2Dialect
+    generate-ddl: true
+    hibernate:
+      ddl-auto: none
+
+decorator:
+  datasource:
+    p6spy:
+      enable-logging: true
