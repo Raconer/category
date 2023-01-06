@@ -9,7 +9,7 @@ import com.ecommerce.category.model.dto.category.CategoryDto;
 
 public interface CategoryRepository extends JpaRepository<CategoryDto, Long> {
 
-    Integer countByparent(Long parent);
+    Integer countByParent(Long parent);
 
     List<CategoryDto> findByParentAndSortBetweenOrderBySort(Long parent, int fromSort, int toSort);
 

@@ -2,10 +2,6 @@ package com.ecommerce.category.controller;
 
 // API Post 실행시
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-// API Result 출력
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-// API Result Http Status
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.json.simple.JSONObject;
 import org.junit.jupiter.api.Test;

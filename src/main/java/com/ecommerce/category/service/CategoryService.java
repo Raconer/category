@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import org.h2.index.Cursor;
 import org.springframework.stereotype.Service;
 
 import com.ecommerce.category.model.dto.category.CategoryDto;
@@ -26,7 +25,7 @@ public class CategoryService {
         if (categoryDto.getId() == null) {
             log.info("Category Insert  -> name : {}, parent : {}", categoryDto.getName(), categoryDto.getParent());
             categoryDto.setRegDate(new Date());
-            Integer cnt = this.categoryRepository.countByparent(categoryDto.getParent());
+            Integer cnt = this.categoryRepository.countByParent(categoryDto.getParent());
             categoryDto.setSort(cnt + 1);
             this.categoryRepository.save(categoryDto);
         } else {
