@@ -1,9 +1,12 @@
 package com.ecommerce.category.service;
 
+import java.util.Date;
+import java.util.Optional;
+import java.util.Locale.Category;
+
 import org.springframework.stereotype.Service;
 
 import com.ecommerce.category.model.dto.category.CategoryDto;
-import com.ecommerce.category.model.vo.category.CategoryVo;
 import com.ecommerce.category.repository.CategoryRepository;
 
 import lombok.AllArgsConstructor;
@@ -16,23 +19,34 @@ public class CategoryService {
 
     CategoryRepository categoryRepository;
 
-    // Create
-    public CategoryDto insert(CategoryVo categoryVo) {
-        log.info("Category Data Insert");
-        CategoryDto categoryDto = new CategoryDto();
+    // Save
+    public CategoryDto save(CategoryDto categoryDto) {
+        log.info("Check Data : {}", categoryDto.toString());
 
-        if (this.isDuplicate(categoryVo.getName(), categoryVo.getParent())) {
-            categoryDto.setCategoryDto(categoryVo);
+        if (categoryDto.getId() == null) {
+            categoryDto.setRegDate(new Date());
             this.categoryRepository.save(categoryDto);
+        } else {
+            this.update(categoryDto);
         }
 
         return categoryDto;
     }
 
-    // READ
-    // 중복 체크
-    public boolean isDuplicate(String name, long parent) {
-        return this.categoryRepository.findTopByNameAndParent(name, parent) == null;
+    public void update(CategoryDto categoryDto) {
+        log.info("Update Data Check : {}", categoryDto.toString());
+        Optional<CategoryDto> categoryOpt = this.categoryRepository.findById(categoryDto.getId());
+        if (categoryOpt.isPresent()) {
+            CategoryDto tempDto = categoryOpt.get();
+            String name = categoryDto.getName();
+            Integer sort = categoryDto.getSort();
+            if (name != null) {
+                tempDto.setName(name);
+            }
+            if (sort != null) {
+                tempDto.setSort(sort);
+            }
+            tempDto.setModDate(new Date());
+        }
     }
-
 }

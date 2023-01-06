@@ -21,13 +21,19 @@ spring:
       path: /h2-console
       enabled: true
   jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        "[format_sql]": true
     database: H2
     database-platform: org.hibernate.dialect.H2Dialect
     generate-ddl: true
     hibernate:
       ddl-auto: none
-
-decorator:
-  datasource:
-    p6spy:
-      enable-logging: true
+logging:
+    level:
+      org:
+         hibernate:
+            type:
+               descriptor:
+                  sql: trace

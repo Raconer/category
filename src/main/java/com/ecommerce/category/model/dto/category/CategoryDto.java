@@ -9,33 +9,39 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import com.ecommerce.category.model.vo.category.CategoryVo;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
-@Entity
 @Data
+@RequiredArgsConstructor
+@DynamicInsert
+@DynamicUpdate
+@Entity
 @Table(name = "Category")
-@NoArgsConstructor
 public class CategoryDto {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(nullable = false)
     private Long id;
+
     @Column(nullable = false, length = 100)
     private String name;
-    @Column(nullable = false)
+
+    @ColumnDefault(value = "0")
     private Long parent;
-    @Column(nullable = false)
-    private int sort;
-    @Column(nullable = false)
+
+    @Column
+    @ColumnDefault(value = "0")
+    private Integer sort;
+    @Column(updatable = false, nullable = false)
     private Date regDate;
-    @Column(nullable = true)
+    @Column(nullable = true, insertable = false)
     private Date modDate;
 
-    public void setCategoryDto(CategoryVo categoryVo) {
-        this.name = categoryVo.getName();
-        this.parent = categoryVo.getParent();
-        this.regDate = new Date();
-    }
+
 }
