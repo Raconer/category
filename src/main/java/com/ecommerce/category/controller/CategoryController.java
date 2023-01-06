@@ -30,15 +30,11 @@ public class CategoryController {
     @Transactional
     public ResponseEntity<?> save(@RequestBody CategoryDto categoryDto, BindingResult result) {
         saveValid.validate(categoryDto, result);
-
         if (result.hasErrors()) {
             return ResponseEntity.badRequest().body(new FieldErrs(result.getFieldErrors()));
         }
-
-        this.categoryService.save(categoryDto);
-
+        categoryDto = this.categoryService.save(categoryDto);
         return ResponseEntity.ok(categoryDto);
-
     }
 
 }

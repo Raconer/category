@@ -28,8 +28,10 @@ public class CategoryServiceTest {
 
     @Test
     @Transactional
-    void testSave() {
+    void testJpa() {
         // this.categoryService.test();
+        // this.categoryRepository.findByParentAndSortGreaterThanEqualOrderBySort((long)
+        // 4, 3);
 
     }
 

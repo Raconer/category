@@ -27,9 +27,12 @@ public class SaveValid implements Validator {
         if (categoryDto.getId() == null) {
             ValidationUtils.rejectIfEmptyOrWhitespace(errors, "name", ValidCode.REQUIRED.getCode());
             ValidationUtils.rejectIfEmptyOrWhitespace(errors, "parent", ValidCode.REQUIRED.getCode());
-        } else if (categoryDto.getName() == null && categoryDto.getSort() == 0) {
+        } else if (categoryDto.getName() == null && categoryDto.getSort() == null) {
             ValidationUtils.rejectIfEmptyOrWhitespace(errors, "name", ValidCode.REQUIRED.getCode());
             ValidationUtils.rejectIfEmptyOrWhitespace(errors, "sort", ValidCode.REQUIRED.getCode());
+
+        } else if (categoryDto.getSort() != null) {
+            ValidationUtils.rejectIfEmptyOrWhitespace(errors, "parent", ValidCode.REQUIRED.getCode());
         }
     }
 }

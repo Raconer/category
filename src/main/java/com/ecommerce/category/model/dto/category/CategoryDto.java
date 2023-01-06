@@ -43,5 +43,4 @@ public class CategoryDto {
     @Column(nullable = true, insertable = false)
     private Date modDate;
 
-
 }
