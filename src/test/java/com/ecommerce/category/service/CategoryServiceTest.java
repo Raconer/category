@@ -1,5 +1,7 @@
 package com.ecommerce.category.service;
 
+import java.util.List;
+
 import javax.transaction.Transactional;
 
 import org.junit.jupiter.api.Test;
@@ -7,11 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 
-import com.ecommerce.category.repository.CategoryRepository;
+import com.ecommerce.category.model.dto.category.CategoryDto;
 
-import lombok.extern.slf4j.Slf4j;
-
-@Slf4j
 @SpringBootTest
 @TestPropertySource(properties = { "spring.config.location = classpath:application.yml" })
 public class CategoryServiceTest {
@@ -19,15 +18,12 @@ public class CategoryServiceTest {
     @Autowired
     CategoryService categoryService;
 
-    @Autowired
-    CategoryRepository categoryRepository;
 
     @Test
     @Transactional
     void testJpa() {
-        // this.categoryService.test();
-        // this.categoryRepository.findByParentAndSortGreaterThanEqualOrderBySort((long)
-        // 4, 3);
+        List<CategoryDto> categoryVos = this.categoryService.getList((long) 0);
+        System.out.println(categoryVos.toString());
 
     }
 

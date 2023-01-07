@@ -1,12 +1,14 @@
 package com.ecommerce.category.controller;
 
-import javax.transaction.Transactional;
+import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ecommerce.category.model.common.err.FieldErrs;
@@ -25,9 +27,15 @@ public class CategoryController {
 
     SaveValid saveValid;
 
+    // READ
+    @GetMapping
+    public ResponseEntity<?> get(@RequestParam Long parent) {
+        List<CategoryDto> categoryVos = this.categoryService.getList(parent);
+        return ResponseEntity.ok(categoryVos);
+    }
+
     // save
     @PostMapping
-    @Transactional
     public ResponseEntity<?> save(@RequestBody CategoryDto categoryDto, BindingResult result) {
         saveValid.validate(categoryDto, result);
         if (result.hasErrors()) {

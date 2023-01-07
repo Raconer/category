@@ -20,8 +20,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @DynamicInsert
 @DynamicUpdate
-@Entity
-@Table(name = "Category")
+@Entity(name = "category")
+@Table(name = "category")
 public class CategoryDto {
 
     @Id
