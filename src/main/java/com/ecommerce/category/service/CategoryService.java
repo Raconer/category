@@ -11,7 +11,9 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.ecommerce.category.model.dto.category.CategoryDto;
+import com.ecommerce.category.model.vo.category.CategoryVo;
 import com.ecommerce.category.repository.CategoryRepository;
+import com.ecommerce.category.repository.mapper.CategoryMapper;
 import com.ecommerce.category.repository.spec.CategorySpec;
 
 import lombok.AllArgsConstructor;
@@ -24,6 +26,8 @@ import lombok.extern.slf4j.Slf4j;
 public class CategoryService {
 
     CategoryRepository categoryRepository;
+
+    CategoryMapper categoryMapper;
 
     // Save
     public CategoryDto save(CategoryDto categoryDto) {
@@ -42,10 +46,9 @@ public class CategoryService {
     }
 
     // READ
-    public List<CategoryDto> getList(Long parent) {
+    public List<CategoryVo> getList(Long parent) {
         // return
-        // this.categoryRepository.findAll(CategorySpecification.getPredicate(parent));
-        return null;
+        return categoryMapper.findByCategoryInfo(parent);
     }
 
     // UPDATE

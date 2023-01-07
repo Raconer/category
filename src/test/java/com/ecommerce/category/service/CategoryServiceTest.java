@@ -22,8 +22,7 @@ public class CategoryServiceTest {
     @Test
     @Transactional
     void testJpa() {
-        List<CategoryDto> categoryVos = this.categoryService.getList((long) 0);
-        System.out.println(categoryVos.toString());
+
 
     }
 

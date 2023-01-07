@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ecommerce.category.model.common.err.FieldErrs;
 import com.ecommerce.category.model.dto.category.CategoryDto;
+import com.ecommerce.category.model.vo.category.CategoryVo;
 import com.ecommerce.category.service.CategoryService;
 import com.ecommerce.category.validate.category.SaveValid;
 
@@ -30,7 +31,7 @@ public class CategoryController {
     // READ
     @GetMapping
     public ResponseEntity<?> get(@RequestParam Long parent) {
-        List<CategoryDto> categoryVos = this.categoryService.getList(parent);
+        List<CategoryVo> categoryVos = this.categoryService.getList(parent);
         return ResponseEntity.ok(categoryVos);
     }
 

@@ -1,8 +1,11 @@
 package com.ecommerce.category.repository.spec;
 
+import javax.persistence.criteria.JoinType;
+
 import org.springframework.data.jpa.domain.Specification;
 
 import com.ecommerce.category.model.dto.category.CategoryDto;
+import com.ecommerce.category.model.dto.category.CategoryDto_;
 
 public class CategorySpec {
 
