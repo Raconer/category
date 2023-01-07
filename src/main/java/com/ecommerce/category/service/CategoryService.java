@@ -89,8 +89,7 @@ public class CategoryService {
         }
 
         // Parent와 변경 범위 데이터 가져오는 쿼리
-        Specification<CategoryDto> categorySpec = CategorySpec.parent(categoryDto.getParent())
-                .and(CategorySpec.sortBetween(from, to));
+        Specification<CategoryDto> categorySpec = CategorySpec.findUpdateSort(categoryDto.getParent(), from, to);
 
         // 정렬
         List<CategoryDto> list = this.categoryRepository.findAll(categorySpec, Sort.by(Sort.Direction.ASC, "sort"));
