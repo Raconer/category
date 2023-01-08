@@ -4,11 +4,11 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
 
-import com.ecommerce.category.model.vo.category.CategoryVo;
+import com.ecommerce.category.model.dto.category.CategoryDto;
 
 @Mapper
 public interface CategoryMapper {
 
-    List<CategoryVo> findByCategoryInfo(Long parent);
+    List<CategoryDto> findByChild(Long parent);
 
 }

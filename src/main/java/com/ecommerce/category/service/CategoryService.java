@@ -1,8 +1,11 @@
 package com.ecommerce.category.service;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import javax.transaction.Transactional;
 
@@ -46,9 +49,29 @@ public class CategoryService {
     }
 
     // READ
+
+    public List<CategoryVo> setCategoryList(List<CategoryVo> categoryVos, Long parent, List<CategoryDto> categoryDtos) {
+        categoryDtos.stream().filter(category -> category.getParent().equals(parent)).forEach(category -> {
+            List<CategoryVo> tmpVos = new ArrayList<>();
+            tmpVos = this.setCategoryList(tmpVos, category.getId(), categoryDtos);
+            CategoryVo categoryVo = new CategoryVo(category, tmpVos);
+            categoryVos.add(categoryVo);
+        });
+
+        return categoryVos;
+    }
+
     public List<CategoryVo> getList(Long parent) {
         // return
-        return categoryMapper.findByCategoryInfo(parent);
+        List<CategoryVo> categoryVos = new ArrayList<>();
+        List<CategoryDto> categoryDtos = categoryMapper.findByChild(parent);
+
+        if (!categoryDtos.isEmpty()) {
+
+            categoryVos = this.setCategoryList(categoryVos, parent, categoryDtos);
+
+        }
+        return categoryVos;
     }
 
     // UPDATE
