@@ -11,4 +11,6 @@ public interface CategoryMapper {
 
     List<CategoryDto> findByChild(Long parent);
 
+    void deleteChild(Long parent);
+
 }

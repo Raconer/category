@@ -1,28 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ecommerce.category.repository.mapper.CategoryMapper">
-
+<sql id="finChildSql">
+        WITH RECURSIVE cte( id, parent, name, sort, reg_date ) AS 
+        (       SELECT  id, 
+                parent, 
+                name, 
+                sort, 
+                reg_date 
+        FROM category 
+        WHERE parent = #{parent}
+        UNION ALL
+        SELECT  c.id, 
+                c.parent, 
+                c.name, 
+                c.sort, 
+                c.reg_date 
+        FROM cte
+        INNER JOIN category AS c 
+        ON cte.id = c.parent
+        ) 
+</sql>
 <!-- Read -->
-    <select id="findByChild" parameterType="Long" resultType="CategoryDto">
-        WITH RECURSIVE cte( id, parent, name, sort, reg_date ) AS (
-            SELECT  id, 
-                    parent, 
-                    name, 
-                    sort, 
-                    reg_date 
-            FROM category 
-            WHERE parent = #{parent}
-            UNION ALL
-            SELECT  c.id, 
-                    c.parent, 
-                    c.name, 
-                    c.sort, 
-                    c.reg_date 
-            FROM cte
-            INNER JOIN category AS c 
-                ON cte.id = c.parent
-            ) 
-        SELECT id, name, parent, sort, reg_date as regDate FROM cte
+<select id="findByChild" parameterType="Long" resultType="CategoryDto">
+<include refid="finChildSql"/>
+        SELECT  id, 
+                name, 
+                parent, 
+                sort, 
+                reg_date as regDate 
+        FROM cte
         order by parent ,sort;
-    </select>
+</select>
+<!-- delete -->
+<delete id="deleteChild" parameterType="Long">
+        DELETE 
+        FROM category
+        WHERE id in ( 
+        <include refid="finChildSql"/>
+        SELECT  id 
+        FROM cte)
+        OR id = #{parent}
+</delete>
 </mapper>

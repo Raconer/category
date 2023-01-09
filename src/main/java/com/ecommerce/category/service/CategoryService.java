@@ -34,7 +34,9 @@ public class CategoryService {
     public CategoryDto save(CategoryDto categoryDto) {
         if (categoryDto.getId() == null) { // Insert
             log.info("Category Insert  -> name : {}, parent : {}", categoryDto.getName(), categoryDto.getParent());
-            Integer cnt = this.categoryRepository.countByParent(categoryDto.getParent());
+            Long parent = categoryDto.getParent();
+            parent = parent == null ? 0 : parent;
+            Integer cnt = this.categoryRepository.countByParent(parent);
             categoryDto.setInsertData(cnt + 1, categoryDto.getParent());
             this.categoryRepository.save(categoryDto);
         } else { // Update
@@ -147,5 +149,10 @@ public class CategoryService {
         }
 
         return sort;
+    }
+
+    // Delete
+    public void delete(Long id) {
+        this.categoryMapper.deleteChild(id);
     }
 }
