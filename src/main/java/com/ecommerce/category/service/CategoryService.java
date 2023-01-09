@@ -34,12 +34,10 @@ public class CategoryService {
 
     // Save
     public CategoryDto save(CategoryDto categoryDto) {
-
         if (categoryDto.getId() == null) { // Insert
             log.info("Category Insert  -> name : {}, parent : {}", categoryDto.getName(), categoryDto.getParent());
-            categoryDto.setRegDate(new Date());
             Integer cnt = this.categoryRepository.countByParent(categoryDto.getParent());
-            categoryDto.setSort(cnt + 1);
+            categoryDto.setInsertData(cnt + 1, categoryDto.getParent());
             this.categoryRepository.save(categoryDto);
         } else { // Update
             categoryDto = this.update(categoryDto);
@@ -49,7 +47,6 @@ public class CategoryService {
     }
 
     // READ
-
     public List<CategoryVo> setCategoryList(List<CategoryVo> categoryVos, Long parent, List<CategoryDto> categoryDtos) {
         categoryDtos.stream().filter(category -> category.getParent().equals(parent)).forEach(category -> {
             List<CategoryVo> tmpVos = new ArrayList<>();
@@ -67,9 +64,7 @@ public class CategoryService {
         List<CategoryDto> categoryDtos = categoryMapper.findByChild(parent);
 
         if (!categoryDtos.isEmpty()) {
-
             categoryVos = this.setCategoryList(categoryVos, parent, categoryDtos);
-
         }
         return categoryVos;
     }
@@ -83,17 +78,20 @@ public class CategoryService {
 
             String name = categoryDto.getName();
             Integer sort = categoryDto.getSort();
-
+            Long parent = categoryDto.getParent();
             if (name != null) { // 이름 변경
                 tempDto.setName(name);
             }
             if (sort != null) { // 순서 변경
                 sort = this.updateSort(tempDto, sort);
                 tempDto.setSort(sort);
+            } else if (parent != null) {// 부모 변경
+                Integer cnt = this.categoryRepository.countByParent(categoryDto.getParent());
+                tempDto.setSort(cnt + 1);
+                tempDto.setParent(parent);
             }
 
             tempDto.setModDate(new Date()); // 수정일
-
             return tempDto;
         }
         return categoryDto;

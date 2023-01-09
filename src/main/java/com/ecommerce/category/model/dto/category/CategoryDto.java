@@ -46,4 +46,11 @@ public class CategoryDto {
     @Column(nullable = true, insertable = false)
     private Date modDate;
 
+    // 기본 Insert Date 설정
+    public void setInsertData(int cnt, Long parent) {
+        this.regDate = new Date();
+        this.sort = cnt;
+        this.parent = parent != null ? parent : 0;
+    }
+
 }

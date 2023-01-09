@@ -25,5 +25,4 @@ public class CategoryVo extends Category {
         this.setModDate(categoryDto.getModDate());
         this.chidList = chidList;
     }
-
 }

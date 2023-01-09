@@ -8,9 +8,9 @@ import org.springframework.validation.FieldError;
 import com.ecommerce.category.core.code.ValidCode;
 import com.ecommerce.category.model.common.err.FieldErr;
 
-public class ErrorUtils {
+public class ErrorUtil {
 
-    private ErrorUtils() {
+    private ErrorUtil() {
         throw new IllegalStateException("Utility class");
     }
 

@@ -35,7 +35,7 @@ public class CategoryController {
         return ResponseEntity.ok(categoryVos);
     }
 
-    // save
+    // Save(Insert/Update)
     @PostMapping
     public ResponseEntity<?> save(@RequestBody CategoryDto categoryDto, BindingResult result) {
         saveValid.validate(categoryDto, result);
@@ -46,4 +46,5 @@ public class CategoryController {
         return ResponseEntity.ok(categoryDto);
     }
 
+    // Delete
 }
