@@ -14,4 +14,6 @@ public interface CategoryRepository extends JpaRepository<CategoryDto, Long>, Jp
 
     List<CategoryDto> findByParentOrderBySort(Long parent);
 
+    List<CategoryDto> findByParentAndSortGreaterThan(Long parent, Integer sort);
+
 }

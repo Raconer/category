@@ -2,10 +2,8 @@ package com.ecommerce.category.service;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import javax.transaction.Transactional;
 
@@ -74,25 +72,39 @@ public class CategoryService {
         Optional<CategoryDto> categoryOpt = this.categoryRepository.findById(categoryDto.getId());
 
         if (categoryOpt.isPresent()) { // 데이터 가 존재 할 경우
-            CategoryDto tempDto = categoryOpt.get();
-
+            CategoryDto curDto = categoryOpt.get();
+            // 수정될 데이터
             String name = categoryDto.getName();
             Integer sort = categoryDto.getSort();
             Long parent = categoryDto.getParent();
+            // 현재 데이터
+            Long curParent = curDto.getParent();
+
             if (name != null) { // 이름 변경
-                tempDto.setName(name);
+                curDto.setName(name);
             }
             if (sort != null) { // 순서 변경
-                sort = this.updateSort(tempDto, sort);
-                tempDto.setSort(sort);
-            } else if (parent != null) {// 부모 변경
-                Integer cnt = this.categoryRepository.countByParent(categoryDto.getParent());
-                tempDto.setSort(cnt + 1);
-                tempDto.setParent(parent);
+                sort = this.updateSort(curDto, sort);
+                curDto.setSort(sort);
+            } else if (parent != null && !curParent.equals(parent)) { // 부모 변경
+
+                Integer cnt = this.categoryRepository.countByParent(parent);
+                // 기존에 있던 parent 리스트 Sort 수정
+                List<CategoryDto> sortList = this.categoryRepository.findByParentAndSortGreaterThan(
+                        curParent,
+                        curDto.getSort());
+
+                sortList.forEach(categorySort -> {
+                    categorySort.setSort(categorySort.getSort() - 1);
+                });
+
+                // ****************************************
+                curDto.setSort(cnt + 1);
+                curDto.setParent(parent);
             }
 
-            tempDto.setModDate(new Date()); // 수정일
-            return tempDto;
+            curDto.setModDate(new Date()); // 수정일
+            return curDto;
         }
         return categoryDto;
     }
