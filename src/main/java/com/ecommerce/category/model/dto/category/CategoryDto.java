@@ -11,6 +11,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Null;
 
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
@@ -30,8 +32,10 @@ public class CategoryDto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false)
+    @Null
     private Long id;
 
+    @NotBlank
     @Column(nullable = false, length = 100)
     private String name;
 
@@ -47,10 +51,9 @@ public class CategoryDto {
     private Date modDate;
 
     // 기본 Insert Date 설정
-    public void setInsertData(int cnt, Long parent) {
-        this.regDate = new Date();
-        this.sort = cnt;
-        this.parent = parent != null ? parent : 0;
+    public void setInsertData(Long parent) {
+        this.regDate = new Date(); // 등록 일자 추가
+        this.parent = parent == null ? 0 : parent;
     }
 
 }

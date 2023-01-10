@@ -18,41 +18,58 @@ import com.ecommerce.category.repository.mapper.CategoryMapper;
 import com.ecommerce.category.repository.spec.CategorySpec;
 
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @Service
 @Transactional
 @AllArgsConstructor
 public class CategoryService {
 
     CategoryRepository categoryRepository;
-
     CategoryMapper categoryMapper;
 
-    // Save
-    public CategoryDto save(CategoryDto categoryDto) {
-        if (categoryDto.getId() == null) { // Insert
-            log.info("Category Insert  -> name : {}, parent : {}", categoryDto.getName(), categoryDto.getParent());
-            Long parent = categoryDto.getParent();
-            parent = parent == null ? 0 : parent;
-            Integer cnt = this.categoryRepository.countByParent(parent);
-            categoryDto.setInsertData(cnt + 1, categoryDto.getParent());
-            this.categoryRepository.save(categoryDto);
-        } else { // Update
-            categoryDto = this.update(categoryDto);
-        }
+    /**
+     * @param categoryDto
+     * @return
+     * @desc 기본으로 id가 null임을 체크 하므로 save시 select 해도 관련 데이터가 없으므로 insert 실행 isNew를
+     *       사용하는 방법도 있다.
+     */
+
+    // Create
+    public CategoryDto insert(CategoryDto categoryDto) {
+        Long parent = categoryDto.getParent();
+        categoryDto.setInsertData(parent);
+        // 같은 부모가진 카테고리 Count
+        Integer cnt = this.categoryRepository.countByParent(categoryDto.getParent());
+        // 추가 이므로 +1 하여 데이터 셋팅
+        categoryDto.setSort(cnt + 1);
+
+        // 데이터 저장
+        this.categoryRepository.save(categoryDto);
 
         return categoryDto;
     }
 
     // READ
+    /**
+     * @param categoryVos  -> 최초에는 비어 있는 categoryVos가 넘어온다.
+     * @param parent       ->
+     * @param categoryDtos -> parent의 와 연결된 모든 child 리스트
+     * @return
+     * @desc 재귀함수로 자식 데이터가 존재 하면 CategoryVo의 chidList에 Add 한다.
+     */
     public List<CategoryVo> setCategoryList(List<CategoryVo> categoryVos, Long parent, List<CategoryDto> categoryDtos) {
+        // 같은 parent가 존재 할 경우
         categoryDtos.stream().filter(category -> category.getParent().equals(parent)).forEach(category -> {
-            List<CategoryVo> tmpVos = new ArrayList<>();
-            tmpVos = this.setCategoryList(tmpVos, category.getId(), categoryDtos);
-            CategoryVo categoryVo = new CategoryVo(category, tmpVos);
+            // Child List를 생성한다.
+            List<CategoryVo> chidList = new ArrayList<>();
+            // 같은 parent가 존재 하는 id를 기점으로 재귀를 하며 id를 parent로 가진 지식 데이터를 가져온다.
+            chidList = this.setCategoryList(chidList, category.getId(), categoryDtos);
+            // 현재 id의 데이터와 child 데이터를 셋팅 한다.
+            CategoryVo categoryVo = new CategoryVo(category, chidList);
+            // return 될 값에 add 한다.
             categoryVos.add(categoryVo);
+            // TODO 테스트 필요_다음 검색을 위해 삭제 한다.
+            // categoryDtos.remove(category);
         });
 
         return categoryVos;
@@ -74,39 +91,38 @@ public class CategoryService {
         Optional<CategoryDto> categoryOpt = this.categoryRepository.findById(categoryDto.getId());
 
         if (categoryOpt.isPresent()) { // 데이터 가 존재 할 경우
-            CategoryDto curDto = categoryOpt.get();
+            CategoryDto curCategoryDto = categoryOpt.get();
             // 수정될 데이터
             String name = categoryDto.getName();
             Integer sort = categoryDto.getSort();
             Long parent = categoryDto.getParent();
             // 현재 데이터
-            Long curParent = curDto.getParent();
+            Long curParent = curCategoryDto.getParent();
 
             if (name != null) { // 이름 변경
-                curDto.setName(name);
+                curCategoryDto.setName(name);
             }
             if (sort != null) { // 순서 변경
-                sort = this.updateSort(curDto, sort);
-                curDto.setSort(sort);
+                sort = this.updateSort(curCategoryDto, sort);
+                curCategoryDto.setSort(sort);
             } else if (parent != null && !curParent.equals(parent)) { // 부모 변경
-
-                Integer cnt = this.categoryRepository.countByParent(parent);
-                // 기존에 있던 parent 리스트 Sort 수정
+                // 기존 데이터 변경
+                // 기존 parent와 sort 가 더 컸던 데이터를 읽어 온다.
                 List<CategoryDto> sortList = this.categoryRepository.findByParentAndSortGreaterThan(
                         curParent,
-                        curDto.getSort());
+                        curCategoryDto.getSort());
+                // 불러온 데이터를 Sort -1 한다.
+                sortList.forEach(categorySort -> categorySort.setSort(categorySort.getSort() - 1));
 
-                sortList.forEach(categorySort -> {
-                    categorySort.setSort(categorySort.getSort() - 1);
-                });
-
-                // ****************************************
-                curDto.setSort(cnt + 1);
-                curDto.setParent(parent);
+                // 부모 변경
+                // 변경될 parent에 마지막 위치로 이동시킨다.
+                Integer cnt = this.categoryRepository.countByParent(parent);
+                curCategoryDto.setSort(cnt + 1);
+                curCategoryDto.setParent(parent);
             }
 
-            curDto.setModDate(new Date()); // 수정일
-            return curDto;
+            curCategoryDto.setModDate(new Date()); // 수정일
+            return curCategoryDto;
         }
         return categoryDto;
     }

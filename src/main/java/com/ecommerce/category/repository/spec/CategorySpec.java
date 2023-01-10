@@ -1,22 +1,14 @@
 package com.ecommerce.category.repository.spec;
 
-import javax.persistence.criteria.JoinType;
-
 import org.springframework.data.jpa.domain.Specification;
 
 import com.ecommerce.category.model.dto.category.CategoryDto;
-import com.ecommerce.category.model.dto.category.CategoryDto_;
 
 public class CategorySpec {
 
-    // public static Specification<CategoryDto> findByCategoryInfo(Long parent) {
-    // // Parent와 변경 범위 데이터 가져오는 쿼리
-    // return (root, query, cb) -> {
-    // root.fetch(CategoryDto_.parent, JoinType.LEFT);
-    // root.
-    // return cb.count(root.get("id"));
-    // };
-    // }
+    private CategorySpec() {
+        throw new IllegalStateException("Utility class");
+    }
 
     public static Specification<CategoryDto> findUpdateSort(Long parent, int from, int to) {
         // Parent와 변경 범위 데이터 가져오는 쿼리

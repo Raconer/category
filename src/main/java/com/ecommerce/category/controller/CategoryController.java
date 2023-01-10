@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,6 +31,16 @@ public class CategoryController {
 
     SaveValid saveValid;
 
+    // Create
+    @PostMapping
+    public ResponseEntity<?> insert(@RequestBody @Validated CategoryDto categoryDto, BindingResult result) {
+        if (result.hasErrors()) {
+            return ResponseEntity.badRequest().body(new FieldErrs(result.getFieldErrors()));
+        }
+        categoryDto = this.categoryService.insert(categoryDto);
+        return ResponseEntity.ok(categoryDto);
+    }
+
     // READ
     @GetMapping
     public ResponseEntity<?> get(@RequestParam Long parent) {
@@ -37,14 +48,14 @@ public class CategoryController {
         return ResponseEntity.ok(categoryVos);
     }
 
-    // Save(Insert/Update)
-    @PostMapping
-    public ResponseEntity<?> save(@RequestBody CategoryDto categoryDto, BindingResult result) {
+    // Update
+    @PostMapping("/update")
+    public ResponseEntity<?> update(@RequestBody CategoryDto categoryDto, BindingResult result) {
         saveValid.validate(categoryDto, result);
         if (result.hasErrors()) {
             return ResponseEntity.badRequest().body(new FieldErrs(result.getFieldErrors()));
         }
-        categoryDto = this.categoryService.save(categoryDto);
+        categoryDto = this.categoryService.update(categoryDto);
         return ResponseEntity.ok(categoryDto);
     }
 

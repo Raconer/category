@@ -8,9 +8,7 @@ import com.ecommerce.category.model.dto.category.CategoryDto;
 
 @Mapper
 public interface CategoryMapper {
-
     List<CategoryDto> findByChild(Long parent);
 
     void deleteChild(Long parent);
-
 }
