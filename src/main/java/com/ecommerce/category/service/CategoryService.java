@@ -43,7 +43,8 @@ public class CategoryService {
         Integer sort = categoryDto.getSort();
         categoryDto.setSort(null);
         sort = this.updateSort(categoryDto, sort);
-        categoryDto.setSort(sort);
+
+        categoryDto.setSort(sort + 1);
 
         // 데이터 저장
         return this.categoryRepository.save(categoryDto);
@@ -115,6 +116,7 @@ public class CategoryService {
                 curCategoryDto.setParent(parent);
                 curCategoryDto.setSort(null);
                 sort = this.updateSort(curCategoryDto, sort);
+
                 curCategoryDto.setSort(sort);
 
             } else if (sort != null) { // 순서 변경
@@ -134,43 +136,39 @@ public class CategoryService {
         // 같은 부모를 가진 Category 갯수
         Integer cnt = this.categoryRepository.countByParent(categoryDto.getParent());
         Integer curSort = categoryDto.getSort();
-        final int maxSort = cnt + 1; // 맨뒤에 붙일 MaxSort 값
 
         if (curSort == null) {
             // 현재 Sort와 목표 Sort가 없으면 맨 뒤에 붙인다.
-            // 따라서 Update할 필요가 없다.
-
+            // 따라서 현재 카테고리 외에 Update할 필요가 없다.
             if (sort == null) {
-                return maxSort;
+                return cnt;
             }
-            curSort = maxSort;
+
+            curSort = cnt;
         }
 
-
-        int add = -1; // 기존보다 높을 경우
+        // 기존 정렬 위치 보다 높을 경우
+        int add = -1;
         Long parent = categoryDto.getParent();
         Long id = categoryDto.getId();
 
         // Sort Min 설정
-        if (sort == null || cnt < sort) {
-            sort = maxSort;
+        if (sort == null || cnt <= sort) {
+            sort = cnt;
         } else if (sort < 1) {
             sort = 1;
         }
-
         int to = sort;
-        if (to < curSort) { // 기존 보다 낮을 경우
+        // 기존 정렬 위치 보다 낮을 경우
+        if (to < curSort) {
             to = curSort;
             curSort = sort;
             add = 1;
         }
-
         // Parent와 변경 범위 데이터 가져오는 쿼리 between curSort, to and parent
         Specification<CategoryDto> categorySpec = CategorySpec.findUpdateSort(parent, curSort, to);
-
         // 정렬
         List<CategoryDto> list = this.categoryRepository.findAll(categorySpec, Sort.by(Sort.Direction.ASC, "sort"));
-
         // 리스트 sort 변경
         for (CategoryDto category : list) {
             category.setModDate(new Date());
@@ -178,10 +176,8 @@ public class CategoryService {
                 category.setSort(category.getSort() + add);
             }
         }
-
         return sort;
     }
-
     // Delete
     public void delete(Long id) {
         this.categoryMapper.deleteChild(id);
