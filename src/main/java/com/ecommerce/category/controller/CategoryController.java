@@ -8,6 +8,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -40,20 +41,20 @@ public class CategoryController {
             return ResponseEntity.badRequest().body(new FieldErrs(result.getFieldErrors()));
         }
 
-        categoryDto = this.categoryService.insert(categoryDto);
+        categoryDto = this.categoryService.create(categoryDto);
 
         return ResponseEntity.ok(categoryDto);
     }
 
     // READ
     @GetMapping
-    public ResponseEntity<?> get(@RequestParam Long parent) {
-        List<CategoryVo> categoryVos = this.categoryService.getList(parent);
+    public ResponseEntity<?> read(@RequestParam(defaultValue = "0") Long parent) {
+        List<CategoryVo> categoryVos = this.categoryService.read(parent);
         return ResponseEntity.ok(categoryVos);
     }
 
     // Update
-    @PostMapping("/update")
+    @PutMapping
     public ResponseEntity<?> update(@RequestBody CategoryDto categoryDto, BindingResult result) {
         saveValid.validate(categoryDto, result);
         if (result.hasErrors()) {

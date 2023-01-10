@@ -37,3 +37,4 @@ logging:
 mybatis:
     mapper-locations: classpath:/META-INF/mybatis/*/*.xml
     type-aliases-package: com.ecommerce.category.model
+

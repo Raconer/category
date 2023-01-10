@@ -27,15 +27,14 @@ public class CategoryService {
     CategoryRepository categoryRepository;
     CategoryMapper categoryMapper;
 
+    // Create
     /**
      * @param categoryDto
      * @return
      * @desc 기본으로 id가 null임을 체크 하므로 save시 select 해도 관련 데이터가 없으므로 insert 실행 isNew를
      *       사용하는 방법도 있다.
      */
-
-    // Create
-    public CategoryDto insert(CategoryDto categoryDto) {
+    public CategoryDto create(CategoryDto categoryDto) {
         Long parent = categoryDto.getParent();
         categoryDto.setInsertData(parent);
 
@@ -76,7 +75,7 @@ public class CategoryService {
         return categoryVos;
     }
 
-    public List<CategoryVo> getList(Long parent) {
+    public List<CategoryVo> read(Long parent) {
         // return
         List<CategoryVo> categoryVos = new ArrayList<>();
         List<CategoryDto> categoryDtos = categoryMapper.findByChild(parent);
@@ -130,7 +129,7 @@ public class CategoryService {
         return categoryDto;
     }
 
-    // 순서 변경
+    // 같은 Parent Category Sort 수정
     public int updateSort(CategoryDto categoryDto, Integer sort) {
 
         // 같은 부모를 가진 Category 갯수
@@ -160,7 +159,7 @@ public class CategoryService {
         }
         int to = sort;
         // 기존 정렬 위치 보다 낮을 경우
-        if (to < curSort) {
+        if (to <= curSort) {
             to = curSort;
             curSort = sort;
             add = 1;
