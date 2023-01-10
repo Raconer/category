@@ -1,7 +1,5 @@
 package com.ecommerce.category.validate.category;
 
-import java.util.Optional;
-
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;

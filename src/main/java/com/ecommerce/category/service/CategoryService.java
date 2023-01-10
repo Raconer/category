@@ -102,10 +102,8 @@ public class CategoryService {
             if (name != null) { // 이름 변경
                 curCategoryDto.setName(name);
             }
-            if (sort != null) { // 순서 변경
-                sort = this.updateSort(curCategoryDto, sort);
-                curCategoryDto.setSort(sort);
-            } else if (parent != null && !curParent.equals(parent)) { // 부모 변경
+
+            if (parent != null && !curParent.equals(parent)) { // 부모 변경
                 // 기존 데이터 변경
                 // 기존 parent와 sort 가 더 컸던 데이터를 읽어 온다.
                 List<CategoryDto> sortList = this.categoryRepository.findByParentAndSortGreaterThan(
@@ -114,11 +112,14 @@ public class CategoryService {
                 // 불러온 데이터를 Sort -1 한다.
                 sortList.forEach(categorySort -> categorySort.setSort(categorySort.getSort() - 1));
 
-                // 부모 변경
-                // 변경될 parent에 마지막 위치로 이동시킨다.
-                Integer cnt = this.categoryRepository.countByParent(parent);
-                curCategoryDto.setSort(cnt + 1);
                 curCategoryDto.setParent(parent);
+                curCategoryDto.setSort(null);
+                sort = this.updateSort(curCategoryDto, sort);
+                curCategoryDto.setSort(sort);
+
+            } else if (sort != null) { // 순서 변경
+                sort = this.updateSort(curCategoryDto, sort);
+                curCategoryDto.setSort(sort);
             }
 
             curCategoryDto.setModDate(new Date()); // 수정일
@@ -130,15 +131,21 @@ public class CategoryService {
     // 순서 변경
     public int updateSort(CategoryDto categoryDto, Integer sort) {
 
+        // 같은 부모를 가진 Category 갯수
         Integer cnt = this.categoryRepository.countByParent(categoryDto.getParent());
         Integer curSort = categoryDto.getSort();
-        final int maxSort = cnt + 1;
+        final int maxSort = cnt + 1; // 맨뒤에 붙일 MaxSort 값
 
-        if (curSort == null && sort == null) {
-            return maxSort;
+        if (curSort == null) {
+            // 현재 Sort와 목표 Sort가 없으면 맨 뒤에 붙인다.
+            // 따라서 Update할 필요가 없다.
+
+            if (sort == null) {
+                return maxSort;
+            }
+            curSort = maxSort;
         }
 
-        curSort = maxSort;
 
         int add = -1; // 기존보다 높을 경우
         Long parent = categoryDto.getParent();

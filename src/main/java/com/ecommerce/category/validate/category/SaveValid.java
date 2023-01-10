@@ -1,6 +1,7 @@
 package com.ecommerce.category.validate.category;
 
 import org.springframework.stereotype.Component;
+import org.h2.util.StringUtils;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
@@ -25,7 +26,12 @@ public class SaveValid implements Validator {
         categoryDto = (CategoryDto) target;
 
         ValidationUtils.rejectIfEmptyOrWhitespace(errors, "id", ValidCode.REQUIRED.getCode());
-        if (categoryDto.getName() == null
+
+        System.out.println(StringUtils.isNullOrEmpty(categoryDto.getName()));
+        System.out.println(categoryDto.getSort() == null);
+        System.out.println(categoryDto.getParent() == null);
+
+        if (StringUtils.isNullOrEmpty(categoryDto.getName())
                 && categoryDto.getSort() == null
                 && categoryDto.getParent() == null) { // Update
             ValidationUtils.rejectIfEmptyOrWhitespace(errors, "name", ValidCode.REQUIRED.getCode());

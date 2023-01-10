@@ -2,12 +2,13 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ecommerce.category.repository.mapper.CategoryMapper">
         <sql id="finChildSql">
-        WITH RECURSIVE cte( id, parent, name, sort, reg_date ) AS 
+        WITH RECURSIVE cte( id, parent, name, sort, reg_date, mod_date) AS 
                 (SELECT  id, 
                         parent, 
                         name, 
                         sort, 
-                        reg_date 
+                        reg_date, 
+                        mod_date
                 FROM category 
                 WHERE parent = #{parent}
                 UNION ALL
@@ -15,7 +16,8 @@
                         c.parent, 
                         c.name, 
                         c.sort, 
-                        c.reg_date 
+                        c.reg_date,
+                        c.mod_date
                 FROM cte
                 INNER JOIN category AS c 
                 ON cte.id = c.parent
@@ -28,7 +30,8 @@
                         name, 
                         parent, 
                         sort, 
-                        reg_date as regDate 
+                        reg_date as regDate,
+                        mod_date as modDate
                 FROM cte
                 order by parent ,sort;
         </select>
