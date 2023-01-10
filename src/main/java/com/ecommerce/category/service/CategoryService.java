@@ -41,10 +41,12 @@ public class CategoryService {
 
         // 같은 부모가진 카테고리 Count
         Integer sort = categoryDto.getSort();
+        int add = sort == null ? 1 : 0;
+
         categoryDto.setSort(null);
         sort = this.updateSort(categoryDto, sort);
 
-        categoryDto.setSort(sort + 1);
+        categoryDto.setSort(sort + add);
 
         // 데이터 저장
         return this.categoryRepository.save(categoryDto);
