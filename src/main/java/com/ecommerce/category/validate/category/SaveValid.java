@@ -27,6 +27,10 @@ public class SaveValid implements Validator {
 
         ValidationUtils.rejectIfEmptyOrWhitespace(errors, "id", ValidCode.REQUIRED.getCode());
 
+        if (categoryDto.getId().equals(categoryDto.getParent())) {
+            errors.rejectValue("parent", ValidCode.CHECK.getMsg());
+        }
+
         if (StringUtils.isNullOrEmpty(categoryDto.getName())
                 && categoryDto.getSort() == null
                 && categoryDto.getParent() == null) { // Update

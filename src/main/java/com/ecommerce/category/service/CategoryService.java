@@ -69,8 +69,6 @@ public class CategoryService {
             CategoryVo categoryVo = new CategoryVo(category, chidList);
             // return 될 값에 add 한다.
             categoryVos.add(categoryVo);
-            // TODO 테스트 필요_다음 검색을 위해 삭제 한다.
-            // categoryDtos.remove(category);
         });
 
         return categoryVos;
