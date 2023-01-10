@@ -5,7 +5,8 @@ import lombok.Getter;
 @Getter
 public enum ValidCode {
     REQUIRED("required", "This is required data."),
-    ALREADY("already", "This data already exists.");
+    ALREADY("already", "This data already exists."),
+    CHECK("check_data", "Please check data.");
 
     private String code;
     private String msg;

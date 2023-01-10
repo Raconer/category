@@ -32,10 +32,8 @@ public class CategoryDto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false)
-    @Null
     private Long id;
 
-    @NotBlank
     @Column(nullable = false, length = 100)
     private String name;
 
@@ -52,8 +50,10 @@ public class CategoryDto {
 
     // 기본 Insert Date 설정
     public void setInsertData(Long parent) {
-        this.regDate = new Date(); // 등록 일자 추가
+        this.id = null;
         this.parent = parent == null ? 0 : parent;
+        this.regDate = new Date(); // 등록 일자 추가
     }
+
 
 }

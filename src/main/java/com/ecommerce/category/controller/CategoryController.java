@@ -14,10 +14,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ecommerce.category.core.code.ValidCode;
 import com.ecommerce.category.model.common.err.FieldErrs;
 import com.ecommerce.category.model.dto.category.CategoryDto;
 import com.ecommerce.category.model.vo.category.CategoryVo;
 import com.ecommerce.category.service.CategoryService;
+import com.ecommerce.category.validate.category.InsertValid;
 import com.ecommerce.category.validate.category.SaveValid;
 
 import lombok.AllArgsConstructor;
@@ -30,14 +32,18 @@ public class CategoryController {
     CategoryService categoryService;
 
     SaveValid saveValid;
+    InsertValid insertValid;
 
     // Create
     @PostMapping
-    public ResponseEntity<?> insert(@RequestBody @Validated CategoryDto categoryDto, BindingResult result) {
+    public ResponseEntity<?> insert(@RequestBody CategoryDto categoryDto, BindingResult result) {
+        insertValid.validate(categoryDto, result);
         if (result.hasErrors()) {
             return ResponseEntity.badRequest().body(new FieldErrs(result.getFieldErrors()));
         }
+
         categoryDto = this.categoryService.insert(categoryDto);
+
         return ResponseEntity.ok(categoryDto);
     }
 

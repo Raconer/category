@@ -38,15 +38,15 @@ public class CategoryService {
     public CategoryDto insert(CategoryDto categoryDto) {
         Long parent = categoryDto.getParent();
         categoryDto.setInsertData(parent);
+
         // 같은 부모가진 카테고리 Count
-        Integer cnt = this.categoryRepository.countByParent(categoryDto.getParent());
-        // 추가 이므로 +1 하여 데이터 셋팅
-        categoryDto.setSort(cnt + 1);
+        Integer sort = categoryDto.getSort();
+        categoryDto.setSort(null);
+        sort = this.updateSort(categoryDto, sort);
+        categoryDto.setSort(sort);
 
         // 데이터 저장
-        this.categoryRepository.save(categoryDto);
-
-        return categoryDto;
+        return this.categoryRepository.save(categoryDto);
     }
 
     // READ
@@ -130,20 +130,36 @@ public class CategoryService {
     // 순서 변경
     public int updateSort(CategoryDto categoryDto, Integer sort) {
 
-        Long id = categoryDto.getId();
-        int from = categoryDto.getSort();
-        // Sort Min 설정
-        sort = sort < 1 ? 1 : sort; // 1 미만 은 1
-        int to = sort;
+        Integer cnt = this.categoryRepository.countByParent(categoryDto.getParent());
+        Integer curSort = categoryDto.getSort();
+        final int maxSort = cnt + 1;
+
+        if (curSort == null && sort == null) {
+            return maxSort;
+        }
+
+        curSort = maxSort;
+
         int add = -1; // 기존보다 높을 경우
-        if (to < from) { // 기존 보다 낮을 경우
-            to = from;
-            from = sort;
+        Long parent = categoryDto.getParent();
+        Long id = categoryDto.getId();
+
+        // Sort Min 설정
+        if (sort == null || cnt < sort) {
+            sort = maxSort;
+        } else if (sort < 1) {
+            sort = 1;
+        }
+
+        int to = sort;
+        if (to < curSort) { // 기존 보다 낮을 경우
+            to = curSort;
+            curSort = sort;
             add = 1;
         }
 
-        // Parent와 변경 범위 데이터 가져오는 쿼리
-        Specification<CategoryDto> categorySpec = CategorySpec.findUpdateSort(categoryDto.getParent(), from, to);
+        // Parent와 변경 범위 데이터 가져오는 쿼리 between curSort, to and parent
+        Specification<CategoryDto> categorySpec = CategorySpec.findUpdateSort(parent, curSort, to);
 
         // 정렬
         List<CategoryDto> list = this.categoryRepository.findAll(categorySpec, Sort.by(Sort.Direction.ASC, "sort"));
@@ -154,14 +170,6 @@ public class CategoryService {
             if (!category.getId().equals(id)) {
                 category.setSort(category.getSort() + add);
             }
-        }
-
-        // 기존 Id의 sort가 max보다 크면 max로 변경
-        int size = list.size() - 1;
-        int maxSort = list.get(size).getSort();
-
-        if (maxSort < sort) {
-            sort = maxSort + 1;
         }
 
         return sort;
