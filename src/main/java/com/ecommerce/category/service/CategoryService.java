@@ -28,18 +28,14 @@ public class CategoryService {
     CategoryMapper categoryMapper;
 
     // Create
-    /**
-     * @param categoryDto
-     * @return
-     * @desc 기본으로 id가 null임을 체크 하므로 save시 select 해도 관련 데이터가 없으므로 insert 실행 isNew를
-     *       사용하는 방법도 있다.
-     */
+    // 기본으로 id가 null임을 체크 하므로 save시 select 해도 관련 데이터가 없으므로 insert 실행 (isNew를 사용하는
+    // 방법도 있다.)
     public CategoryDto create(CategoryDto categoryDto) {
         Long parent = categoryDto.getParent();
         // Insert시 사용되는 데이터 셋팅
         categoryDto.setInsertData(parent);
 
-        // 목표 Sort
+        // Sort
         Integer targetSort = categoryDto.getSort();
         categoryDto.setSort(null);
 
@@ -51,13 +47,7 @@ public class CategoryService {
     }
 
     // READ
-    /**
-     * @param categoryVos  -> 최초에는 비어 있는 categoryVos가 넘어온다.
-     * @param parent       ->
-     * @param categoryDtos -> parent의 와 연결된 모든 child 리스트
-     * @return
-     * @desc 재귀함수로 자식 데이터가 존재 하면 CategoryVo의 chidList에 Add 한다.
-     */
+    // 재귀함수로 자식 데이터가 존재 하면 CategoryVo의 chidList에 Add 한다.
     public List<CategoryVo> setCategoryList(List<CategoryVo> categoryVos, Long parent, List<CategoryDto> categoryDtos) {
         // 같은 parent가 존재 할 경우
         categoryDtos.stream().filter(category -> category.getParent().equals(parent)).forEach(category -> {
@@ -74,6 +64,7 @@ public class CategoryService {
         return categoryVos;
     }
 
+    // Read 가 실행 되는 메소드
     public List<CategoryVo> read(Long parent) {
         // return
         List<CategoryVo> categoryVos = new ArrayList<>();
@@ -88,8 +79,8 @@ public class CategoryService {
     // UPDATE
     public CategoryDto update(CategoryDto categoryDto) {
         Optional<CategoryDto> categoryOpt = this.categoryRepository.findById(categoryDto.getId());
-
-        if (categoryOpt.isPresent()) { // 데이터 가 존재 할 경우
+        // 데이터 가 존재 할 경우
+        if (categoryOpt.isPresent()) {
             CategoryDto curCategoryDto = categoryOpt.get();
             // 수정될 데이터
             String name = categoryDto.getName();
@@ -111,8 +102,8 @@ public class CategoryService {
                 this.moveParentSort(curParent, curSort);
             }
 
-            // Sort 변경
-            if (sort != null || isParent) { // 순서 변경
+            // Sort 변경 (부모가 변경 되어도 Sort가 되어야 한다.)
+            if (sort != null || isParent) {
                 if (isParent) {
                     categoryDto.setSort(null);
                 } else {
@@ -167,7 +158,7 @@ public class CategoryService {
             curSort = 1;
         }
 
-        // tartSort Min, Max
+        // targetSort Min, Max
         if (targetSort == null || cnt < targetSort) {
             targetSort = cnt + 1;
         } else if (targetSort < 1) {
@@ -175,7 +166,7 @@ public class CategoryService {
         }
 
         // 기존 정렬 위치 보다 높을 경우
-        // curSort : 2, targetSort : 4
+        // curSort : 2, targetSort : 4, add : -1
         // 1,2,3,4,5 -> 1,(3 + add),(4 + add),(2 -> targetSort), 5
         int add = -1;
         Long parent = categoryDto.getParent();
@@ -183,14 +174,14 @@ public class CategoryService {
         int to = targetSort;
 
         // 기존 정렬 위치 보다 낮을 경우
-        // curSort : 4, targetSort : 2
+        // curSort : 4, targetSort : 2, add : 1
         // 1,2,3,4,5 -> 1,(4 -> targetSort), (2 + add),(3 + add), 5
         if (to <= curSort) {
             to = curSort;
             curSort = targetSort;
             add = 1;
         }
-        // Parent와 변경 범위 데이터 가져오는 쿼리 between (curSort, to) and parent
+        // 변경 범위 데이터 가져오는 쿼리 between (curSort, to) with parent
         Specification<CategoryDto> categorySpec = CategorySpec.findUpdateSort(parent, curSort, to);
         // 정렬
         List<CategoryDto> list = this.categoryRepository.findAll(categorySpec, Sort.by(Sort.Direction.ASC, "sort"));

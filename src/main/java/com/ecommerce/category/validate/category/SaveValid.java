@@ -39,21 +39,18 @@ public class SaveValid implements Validator {
 
         ValidationUtils.rejectIfEmptyOrWhitespace(errors, "id", ValidCode.REQUIRED.getCode());
 
+        // 같은 부모로 변경시 Validate
         if (categoryDto.getId().equals(categoryDto.getParent())) {
             errors.rejectValue("parent", ValidCode.CHECK.getMsg());
-        }
-
-        if (isParent) {
+        } else if (isParent) { // Child의 Child가 되어 무한 루프 되는 현상을 막기 위해 조회
             List<CategoryDto> categoryDtos = this.categoryMapper.findByChildOne(categoryDto.getId(),
                     categoryDto.getParent());
-            if (categoryDtos.size() > 0) {
+            if (!categoryDtos.isEmpty()) {
                 errors.rejectValue("parent", ValidCode.CHECK.getMsg());
             }
-        }
-
-        if (StringUtils.isNullOrEmpty(categoryDto.getName())
+        } else if (StringUtils.isNullOrEmpty(categoryDto.getName()) // 변경 되는 내용이 없을 시
                 && categoryDto.getSort() == null
-                && !isParent) { // Update
+                && !isParent) {
             ValidationUtils.rejectIfEmptyOrWhitespace(errors, "name", ValidCode.REQUIRED.getCode());
             ValidationUtils.rejectIfEmptyOrWhitespace(errors, "sort", ValidCode.REQUIRED.getCode());
             ValidationUtils.rejectIfEmptyOrWhitespace(errors, "parent", ValidCode.REQUIRED.getCode());
