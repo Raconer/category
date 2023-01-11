@@ -33,8 +33,23 @@
                         reg_date as regDate,
                         mod_date as modDate
                 FROM cte
-                order by parent ,sort;
+                ORDER BY parent ,sort;
         </select>
+
+        <select id="findByChildOne" parameterType="Long" resultType="CategoryDto">
+                <include refid="finChildSql"/>
+                        SELECT  id, 
+                                name, 
+                                parent, 
+                                sort, 
+                                reg_date as regDate,
+                                mod_date as modDate
+                        FROM cte
+                        WHERE id = #{id}
+                        ORDER BY parent ,sort
+                        LIMIT 1;
+        </select>
+
         <!-- delete -->
         <delete id="deleteChild" parameterType="Long">
                 DELETE 
