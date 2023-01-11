@@ -183,11 +183,12 @@ public class CategoryService {
         }
         // 변경 범위 데이터 가져오는 쿼리 between (curSort, to) with parent
         Specification<CategoryDto> categorySpec = CategorySpec.findUpdateSort(parent, curSort, to);
-        // 정렬
+        // 정렬 하여 DB에서 List Select
         List<CategoryDto> list = this.categoryRepository.findAll(categorySpec, Sort.by(Sort.Direction.ASC, "sort"));
         // 리스트 sort 변경
         for (CategoryDto category : list) {
             category.setModDate(new Date());
+            // 변경될 아이디는 추후에 바뀌므로 여기서 변경할 필요가 없다.
             if (!category.getId().equals(id)) {
                 category.setSort(category.getSort() + add);
             }
@@ -197,8 +198,9 @@ public class CategoryService {
     }
     // Delete
     public void delete(Long id) {
+        // 삭제할 Category Select
         Optional<CategoryDto> categoryOpt = this.categoryRepository.findById(id);
-        if (categoryOpt.isPresent()) {
+        if (categoryOpt.isPresent()) { // Category 가 존재 할 경우
             CategoryDto categoryDto = categoryOpt.get();
             this.moveParentSort(categoryDto.getParent(), categoryDto.getSort());
 
