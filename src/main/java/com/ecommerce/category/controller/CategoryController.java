@@ -34,6 +34,15 @@ public class CategoryController {
     InsertValid insertValid;
 
     // Create
+    /**
+     * request
+     * {
+     * "name" : "name", //필수
+     * "parent" : 1,
+     * "sort" : 1
+     * }
+     * 
+     */
     @PostMapping
     public ResponseEntity<?> insert(@RequestBody CategoryDto categoryDto, BindingResult result) {
         insertValid.validate(categoryDto, result);
@@ -46,6 +55,12 @@ public class CategoryController {
         return ResponseEntity.ok(categoryDto);
     }
 
+    /**
+     * request
+     * ?id=0
+     * 
+     * @desc Validate -> ParamExceptHandler.java
+     */
     // READ
     @GetMapping
     public ResponseEntity<?> read(@RequestParam(defaultValue = "0") Long parent) {
@@ -54,6 +69,16 @@ public class CategoryController {
     }
 
     // Update
+    /**
+     * request
+     * {
+     * "id" : 1, //필수
+     * "name" : "name",
+     * "parent" : 1,
+     * "sort" : 1
+     * }
+     * 
+     */
     @PutMapping
     public ResponseEntity<?> update(@RequestBody CategoryDto categoryDto, BindingResult result) {
         saveValid.validate(categoryDto, result);
@@ -65,6 +90,12 @@ public class CategoryController {
     }
 
     // Delete
+    /**
+     * request
+     * ?id=0
+     * 
+     * @desc Validate -> ParamExceptHandler.java
+     */
     @DeleteMapping
     public ResponseEntity<?> delete(@RequestParam Long id) {
         this.categoryService.delete(id);
