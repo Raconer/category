@@ -37,15 +37,12 @@ public class CategoryService {
     public CategoryDto create(CategoryDto categoryDto) {
         Long parent = categoryDto.getParent();
         categoryDto.setInsertData(parent);
-
         // 같은 부모가진 카테고리 Count
-        Integer sort = categoryDto.getSort();
-        int add = sort == null ? 1 : 0;
+        Integer targetSort = categoryDto.getSort();
 
         categoryDto.setSort(null);
-        sort = this.updateSort(categoryDto, sort);
-
-        categoryDto.setSort(sort + add);
+        targetSort = this.updateSort(categoryDto, targetSort);
+        categoryDto.setSort(targetSort);
 
         // 데이터 저장
         return this.categoryRepository.save(categoryDto);
@@ -106,16 +103,19 @@ public class CategoryService {
             if (parent != null && !curParent.equals(parent)) { // 부모 변경
                 // 기존 데이터 변경
                 // 기존 parent와 sort 가 더 컸던 데이터를 읽어 온다.
+                Integer curSort = curCategoryDto.getSort();
+                if (sort < 1) {
+                    sort = 1;
+                }
+                categoryDto.setSort(sort);
                 List<CategoryDto> sortList = this.categoryRepository.findByParentAndSortGreaterThan(
                         curParent,
-                        curCategoryDto.getSort());
+                        curSort);
                 // 불러온 데이터를 Sort -1 한다.
                 sortList.forEach(categorySort -> categorySort.setSort(categorySort.getSort() - 1));
 
+                sort = this.updateSort(categoryDto, sort);
                 curCategoryDto.setParent(parent);
-                curCategoryDto.setSort(null);
-                sort = this.updateSort(curCategoryDto, sort);
-
                 curCategoryDto.setSort(sort);
 
             } else if (sort != null) { // 순서 변경
@@ -130,7 +130,7 @@ public class CategoryService {
     }
 
     // 같은 Parent Category Sort 수정
-    public int updateSort(CategoryDto categoryDto, Integer sort) {
+    public int updateSort(CategoryDto categoryDto, Integer targetSort) {
 
         // 같은 부모를 가진 Category 갯수
         Integer cnt = this.categoryRepository.countByParent(categoryDto.getParent());
@@ -139,29 +139,31 @@ public class CategoryService {
         if (curSort == null) {
             // 현재 Sort와 목표 Sort가 없으면 맨 뒤에 붙인다.
             // 따라서 현재 카테고리 외에 Update할 필요가 없다.
-            if (sort == null) {
-                return cnt;
+            if (targetSort == null) {
+                return cnt + 1;
             }
 
-            curSort = cnt;
+            curSort = cnt + 1;
+        } else if (curSort < 1) {
+            curSort = 1;
+        }
+
+        // tartSort Min, Max
+        if (targetSort == null || cnt < targetSort) {
+            targetSort = cnt + 1;
+        } else if (targetSort < 1) {
+            targetSort = 1;
         }
 
         // 기존 정렬 위치 보다 높을 경우
         int add = -1;
         Long parent = categoryDto.getParent();
         Long id = categoryDto.getId();
-
-        // Sort Min 설정
-        if (sort == null || cnt <= sort) {
-            sort = cnt;
-        } else if (sort < 1) {
-            sort = 1;
-        }
-        int to = sort;
+        int to = targetSort;
         // 기존 정렬 위치 보다 낮을 경우
         if (to <= curSort) {
             to = curSort;
-            curSort = sort;
+            curSort = targetSort;
             add = 1;
         }
         // Parent와 변경 범위 데이터 가져오는 쿼리 between curSort, to and parent
@@ -175,7 +177,8 @@ public class CategoryService {
                 category.setSort(category.getSort() + add);
             }
         }
-        return sort;
+
+        return targetSort;
     }
     // Delete
     public void delete(Long id) {

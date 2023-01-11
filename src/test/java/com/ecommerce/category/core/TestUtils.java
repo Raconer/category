@@ -14,23 +14,22 @@ public class TestUtils {
 
         // 1번 테스트
         CategoryDto categoryDto1 = new CategoryDto();
-        categoryDto1.setName("name" + TimeUtils.getTimeCd());
+        categoryDto1.setName("name_1");
         categoryDtos.add(categoryDto1);
 
-        //// 2번 테스트
+        // 2번 테스트
         CategoryDto categoryDto2 = new CategoryDto();
-        categoryDto2.setName("name" + TimeUtils.getTimeCd());
+        categoryDto2.setName("name_2");
         categoryDto2.setSort(-100); // 1로 저장 되어야함
-
         categoryDtos.add(categoryDto2);
-        // // 3번 테스트
-        // CategoryDto categoryDto3 = new CategoryDto();
-        // categoryDto3.setName("name" + TimeUtils.getTimeCd());
-        // categoryDto3.setSort(10000); // 마지막 숫자로 저장 되어야 함
-        // categoryDtos.add(categoryDto3);
-        // // 4번 테스트
+        // 3번 테스트
+        CategoryDto categoryDto3 = new CategoryDto();
+        categoryDto3.setName("name_3");
+        categoryDto3.setSort(10000); // 마지막 숫자로 저장 되어야 함
+        categoryDtos.add(categoryDto3);
+        // 4번 테스트
         // CategoryDto categoryDto4 = new CategoryDto();
-        // categoryDto4.setName("name" + TimeUtils.getTimeCd());
+        // categoryDto4.setName("name_4");
         // categoryDto4.setSort(3);
         // categoryDtos.add(categoryDto4);
 
