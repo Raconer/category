@@ -1,6 +1,5 @@
 package com.ecommerce.category.model.vo.category;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.ecommerce.category.model.Category;

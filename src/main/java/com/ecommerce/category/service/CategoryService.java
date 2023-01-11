@@ -36,11 +36,13 @@ public class CategoryService {
      */
     public CategoryDto create(CategoryDto categoryDto) {
         Long parent = categoryDto.getParent();
+        // Insert시 사용되는 데이터 셋팅
         categoryDto.setInsertData(parent);
-        // 같은 부모가진 카테고리 Count
-        Integer targetSort = categoryDto.getSort();
 
+        // 목표 Sort
+        Integer targetSort = categoryDto.getSort();
         categoryDto.setSort(null);
+
         targetSort = this.updateSort(categoryDto, targetSort);
         categoryDto.setSort(targetSort);
 
@@ -95,32 +97,39 @@ public class CategoryService {
             Long parent = categoryDto.getParent();
             // 현재 데이터
             Long curParent = curCategoryDto.getParent();
+            Integer curSort = curCategoryDto.getSort();
+
+            boolean isParent = parent != null;
 
             if (name != null) { // 이름 변경
                 curCategoryDto.setName(name);
             }
 
-            if (parent != null && !curParent.equals(parent)) { // 부모 변경
+            if (isParent && !curParent.equals(parent)) { // 부모 변경
                 // 기존 데이터 변경
                 // 기존 parent와 sort 가 더 컸던 데이터를 읽어 온다.
-                Integer curSort = curCategoryDto.getSort();
-                if (sort < 1) {
-                    sort = 1;
-                }
-                categoryDto.setSort(sort);
+
                 List<CategoryDto> sortList = this.categoryRepository.findByParentAndSortGreaterThan(
                         curParent,
                         curSort);
                 // 불러온 데이터를 Sort -1 한다.
                 sortList.forEach(categorySort -> categorySort.setSort(categorySort.getSort() - 1));
 
-                sort = this.updateSort(categoryDto, sort);
-                curCategoryDto.setParent(parent);
-                curCategoryDto.setSort(sort);
+            }
 
-            } else if (sort != null) { // 순서 변경
-                sort = this.updateSort(curCategoryDto, sort);
+            if (sort != null || isParent) { // 순서 변경
+                if (isParent) {
+                    categoryDto.setSort(null);
+                } else {
+                    categoryDto.setSort(curSort);
+                    categoryDto.setParent(curParent);
+                }
+                sort = this.updateSort(categoryDto, sort);
                 curCategoryDto.setSort(sort);
+            }
+
+            if (isParent) {
+                curCategoryDto.setParent(parent);
             }
 
             curCategoryDto.setModDate(new Date()); // 수정일
