@@ -108,15 +108,7 @@ public class CategoryService {
 
             // Parent 변경 -> parent가 같을 경우 변경 X
             if (isParent && !curParent.equals(parent)) {
-                // 기존 데이터 변경
-                // 기존 parent와 sort 가 더 컸던 데이터를 읽어 온다.
-
-                List<CategoryDto> sortList = this.categoryRepository.findByParentAndSortGreaterThan(
-                        curParent,
-                        curSort);
-                // 불러온 데이터를 Sort -1 한다.
-                sortList.forEach(categorySort -> categorySort.setSort(categorySort.getSort() - 1));
-
+                this.moveParentSort(curParent, curSort);
             }
 
             // Sort 변경
@@ -141,6 +133,17 @@ public class CategoryService {
             return curCategoryDto;
         }
         return categoryDto;
+    }
+
+    // Parent가 변경 되거나, Category가 삭제 되었을때
+    public void moveParentSort(Long curParent, Integer curSort) {
+        // 기존 데이터 변경
+        // 기존 parent와 sort 가 더 컸던 데이터를 읽어 온다.
+        List<CategoryDto> sortList = this.categoryRepository.findByParentAndSortGreaterThan(
+                curParent,
+                curSort);
+        // 불러온 데이터를 Sort -1 한다.
+        sortList.forEach(categorySort -> categorySort.setSort(categorySort.getSort() - 1));
     }
 
     // 같은 Parent Category Sort 수정
@@ -203,6 +206,12 @@ public class CategoryService {
     }
     // Delete
     public void delete(Long id) {
-        this.categoryMapper.deleteChild(id);
+        Optional<CategoryDto> categoryOpt = this.categoryRepository.findById(id);
+        if (categoryOpt.isPresent()) {
+            CategoryDto categoryDto = categoryOpt.get();
+            this.moveParentSort(categoryDto.getParent(), categoryDto.getSort());
+
+            this.categoryMapper.deleteChild(id);
+        }
     }
 }

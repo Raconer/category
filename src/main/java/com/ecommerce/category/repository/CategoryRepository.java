@@ -12,7 +12,7 @@ import com.ecommerce.category.model.dto.category.CategoryDto;
 
 public interface CategoryRepository extends JpaRepository<CategoryDto, Long>, JpaSpecificationExecutor<CategoryDto> {
 
-    Integer countByParentAndIdNot(Long parent, Long Id);
+    Integer countByParentAndIdNot(Long parent, Long id);
 
     @Query(value = "select id from category where id = :parent limit 1", nativeQuery = true)
     Long findIdById(@Param("parent") Long parent);
