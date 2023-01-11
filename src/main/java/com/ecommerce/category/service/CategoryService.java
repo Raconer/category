@@ -101,11 +101,13 @@ public class CategoryService {
 
             boolean isParent = parent != null;
 
-            if (name != null) { // 이름 변경
+            // name 변경
+            if (name != null) {
                 curCategoryDto.setName(name);
             }
 
-            if (isParent && !curParent.equals(parent)) { // 부모 변경
+            // Parent 변경 -> parent가 같을 경우 변경 X
+            if (isParent && !curParent.equals(parent)) {
                 // 기존 데이터 변경
                 // 기존 parent와 sort 가 더 컸던 데이터를 읽어 온다.
 
@@ -117,6 +119,7 @@ public class CategoryService {
 
             }
 
+            // Sort 변경
             if (sort != null || isParent) { // 순서 변경
                 if (isParent) {
                     categoryDto.setSort(null);
@@ -128,6 +131,8 @@ public class CategoryService {
                 curCategoryDto.setSort(sort);
             }
 
+            // parent 위치와 sort가 연관 관계가 있으므로
+            // JPA 영속성에 의해 마지막에 변경
             if (isParent) {
                 curCategoryDto.setParent(parent);
             }
@@ -142,18 +147,20 @@ public class CategoryService {
     public int updateSort(CategoryDto categoryDto, Integer targetSort) {
 
         // 같은 부모를 가진 Category 갯수
-        Integer cnt = this.categoryRepository.countByParent(categoryDto.getParent());
+        Long tempId = categoryDto.getId();
+        Integer cnt = this.categoryRepository.countByParentAndIdNot(categoryDto.getParent(),
+                tempId == null ? -1 : tempId);
         Integer curSort = categoryDto.getSort();
 
         if (curSort == null) {
-            // 현재 Sort와 목표 Sort가 없으면 맨 뒤에 붙인다.
+            // curSort와 targetSort가 없으면 맨 뒤에 붙인다.
             // 따라서 현재 카테고리 외에 Update할 필요가 없다.
             if (targetSort == null) {
                 return cnt + 1;
             }
 
             curSort = cnt + 1;
-        } else if (curSort < 1) {
+        } else if (curSort < 1) { // curSort min 설정
             curSort = 1;
         }
 
@@ -165,17 +172,22 @@ public class CategoryService {
         }
 
         // 기존 정렬 위치 보다 높을 경우
+        // curSort : 2, targetSort : 4
+        // 1,2,3,4,5 -> 1,(3 + add),(4 + add),(2 -> targetSort), 5
         int add = -1;
         Long parent = categoryDto.getParent();
         Long id = categoryDto.getId();
         int to = targetSort;
+
         // 기존 정렬 위치 보다 낮을 경우
+        // curSort : 4, targetSort : 2
+        // 1,2,3,4,5 -> 1,(4 -> targetSort), (2 + add),(3 + add), 5
         if (to <= curSort) {
             to = curSort;
             curSort = targetSort;
             add = 1;
         }
-        // Parent와 변경 범위 데이터 가져오는 쿼리 between curSort, to and parent
+        // Parent와 변경 범위 데이터 가져오는 쿼리 between (curSort, to) and parent
         Specification<CategoryDto> categorySpec = CategorySpec.findUpdateSort(parent, curSort, to);
         // 정렬
         List<CategoryDto> list = this.categoryRepository.findAll(categorySpec, Sort.by(Sort.Direction.ASC, "sort"));
